@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "C:/msys64/ucrt64/bin/g++.exe",
+            "args": [
+                "-g",
+                "${workspaceFolder}/*.cpp",
+                "C:/1/tools/glad/src/glad.c",
+                "-o",
+                "${workspaceFolder}/output.exe",
+                "-I", "C:/msys64/ucrt64/include",
+                "-I", "C:/1/tools/glad/include",
+                "-L", "C:/msys64/ucrt64/lib",
+                "-lglfw3",
+                "-lopengl32",
+                "-lgdi32"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
