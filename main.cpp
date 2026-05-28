@@ -4,7 +4,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include <vector>
 #include "Camera.h"
+#include "Grid.h"
+
+
 
 const char *vertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
@@ -65,7 +69,7 @@ int main()
     });
 
 //    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN  );
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return -1;
 
@@ -88,39 +92,7 @@ int main()
     glDeleteShader(fragmentShader);
 
     // сетка
-    float vertices[] = {
-        -0.75f,  0.75f, 0.0f,
-        -0.25f,  0.75f, 0.0f,
-         0.25f,  0.75f, 0.0f,
-         0.75f,  0.75f, 0.0f,
-
-        -0.75f,  0.25f, 0.0f,
-        -0.25f,  0.25f, 0.3f,
-         0.25f,  0.25f, 0.3f,
-         0.75f,  0.25f, 0.0f,
-
-        -0.75f, -0.25f, 0.0f,
-        -0.25f, -0.25f, 0.3f,
-         0.25f, -0.25f, 0.3f,
-         0.75f, -0.25f, 0.0f,
-
-        -0.75f, -0.75f, 0.0f,
-        -0.25f, -0.75f, 0.0f,
-         0.25f, -0.75f, 0.0f,
-         0.75f, -0.75f, 0.0f,
-    };
-
-    unsigned int indices[] = {
-        0,1,  1,2,  2,3,
-        4,5,  5,6,  6,7,
-        8,9,  9,10, 10,11,
-        12,13, 13,14, 14,15,
-
-        0,4,  4,8,  8,12,
-        1,5,  5,9,  9,13,
-        2,6,  6,10, 10,14,
-        3,7,  7,11, 11,15,
-    };
+    Grid grid(-1.0f, 1.0f, -1.0f, 1.0f, 0.3f);
 
     unsigned int VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -129,9 +101,17 @@ int main()
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,
+        grid.vertices.size() * sizeof(float),
+        grid.vertices.data(),
+        GL_STATIC_DRAW);
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+        grid.indices.size() * sizeof(int),
+        grid.indices.data(),
+        GL_STATIC_DRAW);
+
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
@@ -171,7 +151,8 @@ int main()
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
         glBindVertexArray(VAO);
-        glDrawElements(GL_LINES, 48, GL_UNSIGNED_INT, 0);
+//        glDrawElements(GL_LINES, 48, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_LINES, grid.indices.size(), GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
