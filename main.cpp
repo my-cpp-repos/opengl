@@ -39,7 +39,11 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Camera", NULL, NULL);
+    //GLFWwindow* window = glfwCreateWindow(800, 600, "Camera", NULL, NULL);
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, "Camera", monitor, NULL);
+
     if (window == NULL) { glfwTerminate(); return -1; }
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
@@ -68,8 +72,8 @@ int main()
         cam->processScroll(yoffset);
     });
 
-//    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN  );
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+//    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN  );
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return -1;
 
@@ -92,7 +96,7 @@ int main()
     glDeleteShader(fragmentShader);
 
     // сетка
-    Grid grid(-1.0f, 1.0f, -1.0f, 1.0f, 0.3f);
+    Grid grid(-1.0f, 1.0f, -1.0f, 1.0f, 0.03f);
 
     unsigned int VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -144,14 +148,15 @@ int main()
 
         glm::mat4 model      = glm::mat4(1.0f);
         glm::mat4 view       = camera.getViewMatrix();
-        glm::mat4 projection = glm::perspective(glm::radians(camera.fov), 800.0f / 600.0f, 0.1f, 100.0f);
+//        glm::mat4 projection = glm::perspective(glm::radians(camera.fov), 800.0f / 600.0f, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)mode->width / (float)mode->height, 0.1f, 100.0f);
 
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"),      1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"),       1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
         glBindVertexArray(VAO);
-//        glDrawElements(GL_LINES, 48, GL_UNSIGNED_INT, 0);
+
         glDrawElements(GL_LINES, grid.indices.size(), GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
